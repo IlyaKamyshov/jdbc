@@ -1,29 +1,27 @@
 package ru.netology.jdbc.repository;
 
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 import java.util.List;
-
-import static ru.netology.jdbc.util.SQL.read;
 
 @org.springframework.stereotype.Repository
 public class RepositoryList implements Repository {
 
-    private final String script = read("select-product.sql");
-    private final NamedParameterJdbcTemplate jdbcTemplate;
+    @PersistenceContext
+    private final EntityManager entityManager;
 
-    public RepositoryList(NamedParameterJdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public RepositoryList(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     @Override
-    public List<String> getProductName(String name) {
-
-        MapSqlParameterSource parameterSource = new MapSqlParameterSource("name", name);
-
-        return jdbcTemplate.queryForList(script, parameterSource, String.class);
-
+    public List getProductName(String name) {
+        return entityManager
+                .createQuery("select o.productName from Order o " +
+                        "left join Customer c on c.id = o.customer.id where c.name = :name")
+                .setParameter("name", name)
+                .getResultList();
     }
 
 }
