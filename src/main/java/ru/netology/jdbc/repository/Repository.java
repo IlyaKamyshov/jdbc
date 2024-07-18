@@ -1,5 +1,7 @@
 package ru.netology.jdbc.repository;
 
+import java.util.List;
+
 public interface Repository {
-    String getProductName(String name);
+    List<String> getProductName(String name);
 }
